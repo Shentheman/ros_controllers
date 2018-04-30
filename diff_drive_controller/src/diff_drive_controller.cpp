@@ -491,7 +491,12 @@ namespace diff_drive_controller{
     }
 
     // Parse robot description
-    const std::string model_param_name = "robot_description";
+    // const std::string model_param_name = "robot_description";
+    // Shen Li: We want the controller to use namespace /xxx.
+    // If here we assign model_param_name="robot_description", then we have to put /robot_description also under /xxx, i.e. /xxx/robot_description.
+    // This is not what we want.
+    // Therefore, here we make model_param_name="/robot_description", then we don't need to put /robot_description under /xxx, i.e. /robot_description.
+    const std::string model_param_name = "/robot_description";
     bool res = root_nh.hasParam(model_param_name);
     std::string robot_model_str="";
     if (!res || !root_nh.getParam(model_param_name,robot_model_str))
@@ -499,6 +504,11 @@ namespace diff_drive_controller{
       ROS_ERROR_NAMED(name_, "Robot descripion couldn't be retrieved from param server.");
       return false;
     }
+    // Shen Li
+    ROS_WARN_STREAM("[DiffDriveController::setOdomParamsFromUrdf] - Shen "
+        "Li - load robot_description from model_param_name="
+        << model_param_name);
+
 
     boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robot_model_str));
 
