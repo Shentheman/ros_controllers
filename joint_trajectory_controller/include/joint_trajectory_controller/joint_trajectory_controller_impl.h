@@ -186,8 +186,33 @@ checkPathTolerances(const typename Segment::State& state_error,
 {
   const RealtimeGoalHandlePtr rt_segment_goal = segment.getGoalHandle();
   const SegmentTolerances<Scalar>& tolerances = segment.getTolerances();
-  if (!checkStateTolerance(state_error, tolerances.state_tolerance))
+  if (!checkStateTolerance(state_error, tolerances.state_tolerance, true))
   {
+
+// ======================================================================================
+// Shen Li: We output the message
+const unsigned int n_joints = tolerances.state_tolerance.size();
+// Preconditions
+assert(n_joints == state_error.position.size());
+assert(n_joints == state_error.velocity.size());
+assert(n_joints == state_error.acceleration.size());
+
+// // ROS_ERROR_STREAM("State tolerance:");
+// for (unsigned int i = 0; i < n_joints; ++i)
+// {
+  // using std::abs;
+
+// std::cout << "error[" << i << "]=[pos=" << state_error.position[i]
+    // << ", vel=" << state_error.velocity[i] 
+    // << ", acc=" << state_error.acceleration[i]
+    // << "\ntol=[pos=" << tolerances.state_tolerance[i].position
+    // << ", vel=" << tolerances.state_tolerance[i].velocity
+    // << ", acc=" << tolerances.state_tolerance[i].acceleration << std::endl;
+// }
+// // ======================================================================================
+
+
+
     rt_segment_goal->preallocated_result_->error_code =
     control_msgs::FollowJointTrajectoryResult::PATH_TOLERANCE_VIOLATED;
     rt_segment_goal->setAborted(rt_segment_goal->preallocated_result_);
@@ -207,6 +232,27 @@ checkGoalTolerances(const typename Segment::State& state_error,
   const RealtimeGoalHandlePtr rt_segment_goal = segment.getGoalHandle();
   const SegmentTolerances<Scalar>& tolerances = segment.getTolerances();
   const bool inside_goal_tolerances = checkStateTolerance(state_error, tolerances.goal_state_tolerance);
+
+// ======================================================================================
+// Shen Li: We output the message for goal state no matter successful or not
+const unsigned int n_joints = tolerances.goal_state_tolerance.size();
+// Preconditions
+assert(n_joints == state_error.position.size());
+assert(n_joints == state_error.velocity.size());
+assert(n_joints == state_error.acceleration.size());
+ROS_ERROR_STREAM("Goal tolerance:");
+for (unsigned int i = 0; i < n_joints; ++i)
+{
+  using std::abs;
+  std::cout << "error[" << i << "]=[pos=" << state_error.position[i]
+      << ", vel=" << state_error.velocity[i] 
+      << ", acc=" << state_error.acceleration[i]
+      << "\ntol=[pos=" << tolerances.goal_state_tolerance[i].position
+      << ", vel=" << tolerances.goal_state_tolerance[i].velocity
+      << ", acc=" << tolerances.goal_state_tolerance[i].acceleration << std::endl;
+}
+// ======================================================================================
+
 
   if (inside_goal_tolerances)
   {
@@ -236,7 +282,7 @@ checkGoalTolerances(const typename Segment::State& state_error,
 template <class SegmentImpl, class HardwareInterface>
 JointTrajectoryController<SegmentImpl, HardwareInterface>::
 JointTrajectoryController()
-  : verbose_(false), // Set to true during debugging
+  : verbose_(true), // Set to true during debugging
     hold_trajectory_ptr_(new Trajectory)
 {}
 
@@ -403,9 +449,17 @@ update(const ros::Time& time, const ros::Duration& period)
     return;
   }
 
+// ROS_WARN_STREAM("Joint state and desired_state_");
   // Update current state and state error
   for (unsigned int i = 0; i < joints_.size(); ++i)
   {
+// Shen Li
+// std::cout << "current_state_[" << i << "]=[pos=" << current_state_.position[i]
+  // << ", vel=" << current_state_.velocity[i] << std::endl;
+// std::cout << "desired_state_[" << i << "]=[pos=" << desired_state_.position[i]
+  // << ", vel=" << desired_state_.velocity[i] << std::endl;
+
+
     current_state_.position[i] = joints_[i].getPosition();
     current_state_.velocity[i] = joints_[i].getVelocity();
     // There's no acceleration data available in a joint handle
