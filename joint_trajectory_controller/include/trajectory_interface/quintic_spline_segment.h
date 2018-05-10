@@ -142,6 +142,12 @@ public:
   /** \return Segment size (dimension). */
   unsigned int size() const {return coefs_.size();}
 
+  /** \brief Shen Li: Postpone the trajectory into future if the robot is too close to the human based on the safety checker. */
+  void postponeToFuture(Time delta)
+  {
+    start_time_ += delta;
+  }
+
 private:
   typedef boost::array<Scalar, 6> SplineCoefficients;
 

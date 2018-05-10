@@ -232,6 +232,9 @@ public:
   /** \brief Set the tolerances this segment is associated to. */
   void setTolerances(const SegmentTolerances<Scalar>& tolerances) {tolerances_ = tolerances;}
 
+  /** \brief Shen Li: Postpone the trajectory into future if the robot is too close to the human based on the safety checker. */
+  void postponeToFuture(Scalar delta);
+  
 private:
   RealtimeGoalHandlePtr     rt_goal_handle_;
   SegmentTolerances<Scalar> tolerances_;

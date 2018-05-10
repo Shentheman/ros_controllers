@@ -52,6 +52,7 @@
 #include <control_msgs/JointTrajectoryControllerState.h>
 #include <control_msgs/QueryTrajectoryState.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <std_msgs/Bool.h>
 
 // actionlib
 #include <actionlib/server/action_server.h>
@@ -267,6 +268,15 @@ private:
    **/
   void checkGoalTolerances(const typename Segment::State& state_error,
                            const Segment&                 segment);
+
+
+
+  /**
+   * \brief Shen Li: Postpone the trajectory into future if the robot is too close to the human based on the safety checker.
+   **/
+  bool safe_;
+  ros::Subscriber safety_checker_sub_;
+  void safetyCheckerCB(const std_msgs::Bool::ConstPtr& msg);
 
 };
 
