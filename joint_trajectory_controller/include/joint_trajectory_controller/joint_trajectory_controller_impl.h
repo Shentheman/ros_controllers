@@ -370,7 +370,7 @@ bool JointTrajectoryController<SegmentImpl, HardwareInterface>::init(HardwareInt
   // Shen Li: Postpone the trajectory into future if the robot is too close to the human based on the safety checker.
   safe_ = true;
   safety_checker_sub_ = controller_nh_.subscribe(
-      "safety_checking", 1, 
+      "/arm/safety_checking", 1, 
       &JointTrajectoryController::safetyCheckerCB, 
       this);
 
